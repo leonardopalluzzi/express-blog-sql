@@ -3,24 +3,12 @@ const connection = require('../data/db');
 
 function index(req, res) {
 
-    let filterData = data;
+    const sql = 'SELECT * FROM posts'
 
-    if (req.query.tag) {
-        filterData = data.filter(post => post.tags.includes(req.query.tag));
-    }
-
-    if (filterData.length == 0) {
-        return res.status(404).json({
-            error: 'Not found',
-            message: 'Tag not found in any post'
-        })
-    }
-
-    console.log(filterData);
-    console.log(data);
-
-
-    res.json(filterData);
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ message: 'DB error' })
+        res.json(results)
+    })
 }
 
 function show(req, res) {
