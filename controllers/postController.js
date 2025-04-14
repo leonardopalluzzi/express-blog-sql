@@ -57,44 +57,20 @@ function store(req, res) {
 
 function update(req, res) {
 
-    const newSlug = req.body.title.replaceAll(' ', '-').toLowerCase();
-    let errorflag = false;
+    const postSlug = req.params.slug.replaceAll('-', ' ')
+    const newPost = req.body
+    console.log(newPost);
 
-    //title input check
-    data.forEach(post => {
-        const postSlug = post.slug;
-        //console.log(postSlug);
+    const sql = 'UPDATE posts SET title = ?, content = ?, image = ? WHERE posts.title = ?'
 
-        if (newSlug == postSlug) {
-            errorflag = true;
-        }
+    connection.query(sql, [newPost.title, newPost.content, newPost.image, postSlug], (err, results) => {
+        console.log(results);
+        if (err) return res.status(500).json({ message: 'DB error' });
+        if (results.affectedRows == 0) return res.status(404).json({ message: 'Post not found' })
+
+        res.json({ message: `Post: ${postSlug} successfully updated to: ${newPost.title}` })
+
     })
-    //console.log(errorflag);
-
-    const currentSlug = req.params.slug;
-    const currentPost = data.find(post => post.slug == currentSlug);
-
-    if (!currentPost) {
-        return res.status(404).json({
-            error: "Not found",
-            message: "Post not found"
-        })
-    } else if (errorflag == true) {
-        return res.status(403).json({
-            error: 'Already exists',
-            message: 'This post already exist'
-        })
-    } else {
-        currentPost.title = req.body.title;
-        currentPost.slug = newSlug;
-        currentPost.content = req.body.content;
-        currentPost.image = req.body.image;
-        currentPost.tags = req.body.tags;
-
-        //console.log(data.forEach(post => console.log(post.slug)));
-
-        res.json(currentPost);
-    }
 }
 
 function modify(req, res) {
