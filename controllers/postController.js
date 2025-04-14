@@ -75,23 +75,20 @@ function update(req, res) {
 
 function modify(req, res) {
 
-    const currentSlug = req.params.slug;
-    const currentPost = data.find(post => post.slug == currentSlug);
+    const postSlug = req.params.slug.replaceAll('-', ' ')
+    const newPost = req.body
+    console.log(newPost);
 
-    if (!currentPost) {
-        return res.status(404).json({
-            error: "Not found",
-            message: "Post not found"
-        })
-    } else {
-        currentPost.content = req.body.content;
-        currentPost.image = req.body.image;
-        currentPost.tags = req.body.tags;
+    const sql = 'UPDATE posts SET title = ?, content = ?, image = ? WHERE posts.title = ?'
 
-        //console.log(data.forEach(post => console.log(post.slug)));
+    connection.query(sql, [newPost.title, newPost.content, newPost.image, postSlug], (err, results) => {
+        console.log(results);
+        if (err) return res.status(500).json({ message: 'DB error' });
+        if (results.affectedRows == 0) return res.status(404).json({ message: 'Post not found' })
 
-        res.json(currentPost);
-    }
+        res.json({ message: `Post: ${postSlug} successfully updated to: ${newPost.title}` })
+
+    })
 }
 
 function destroy(req, res) {
