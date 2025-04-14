@@ -13,28 +13,34 @@ function index(req, res) {
 
 function show(req, res) {
 
-    const post = data.find(post => post.slug == req.params.slug);
+    const postSlug = req.params.slug.replaceAll('-', ' ')
 
-    if (!post) {
-        return res.status(404).json({
-            error: 'Not found',
-            messager: 'Post not found'
+    const sql = 'SELECT * FROM posts WHERE posts.title = ?'
+    const sqlJoin = 'SELECT * FROM post_tag JOIN tags ON post_tag.tag_id = tags.id WHERE post_tag.post_id = ? '
+
+    connection.query(sql, [postSlug], (err, postIdResult) => {
+        if (err) return res.status(500).json({ message: 'DB error' });
+        console.log(postIdResult);
+        const queryPost = postIdResult[0]
+        const postId = postIdResult[0].id
+        //res.json(postId)
+
+        connection.query(sqlJoin, [postId], (err, tagsResults) => {
+            if (err) return res.status(500).json({ message: 'DB error' });
+            console.log(tagsResults);
+
+            const tagList = tagsResults.map(item => {
+                const { id, label } = item
+                return newItem = {
+                    id,
+                    label
+                }
+            })
+
+            queryPost.tags = tagList
+            res.json(queryPost)
         })
-    }
-
-    //for loop implementation
-    /*
-    let post;
-    for(let i = 0; i < data.length; i++){
-        const reqPost = req.params.slug
-        if(data[i].slug == reqPost){
-            post = data[i];
-            break;
-        }
-    }
-    */
-
-    res.json(post);
+    })
 }
 
 function store(req, res) {
