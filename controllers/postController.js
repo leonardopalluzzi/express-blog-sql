@@ -136,29 +136,16 @@ function modify(req, res) {
 }
 
 function destroy(req, res) {
-    const postSlug = req.params.slug;
-    //console.log(postSlug);
+    const postSlug = req.params.slug.replaceAll('-', ' ');
+    console.log(postSlug);
 
-    const currentSlug = data.find(post => post.slug == postSlug);
-    //console.log(currentSlug);
+    const sql = 'DELETE FROM posts WHERE posts.title = ?'
 
-    if (!currentSlug) {
-        return res.status(404).json({
-            error: 'Not found',
-            message: 'Post not found'
-        })
-    }
+    connection.query(sql, [postSlug], (err, results) => {
+        if (err) return res.status(500).json({ message: 'DB error' });
 
-    data.forEach((post, i, arr) => {
-        if (post.slug == postSlug) {
-            console.log(currentSlug.slug, postSlug);
-
-            arr.splice(arr.indexOf(post), 1);
-        }
+        res.sendStatus(204)
     })
-
-    //console.log(currentSlug.slug, postSlug);
-    res.sendStatus(204);
 }
 
 
