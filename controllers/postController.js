@@ -45,37 +45,14 @@ function show(req, res) {
 
 function store(req, res) {
 
-    //title input check
-    data.forEach(post => {
-        const inputSlug = req.body.title.replaceAll(' ', '-').toLowerCase();
-        const postSlug = post.slug;
+    const newPost = req.body
 
-        if (inputSlug == postSlug) {
-            return res.status(403).json({
-                error: 'Already exists',
-                message: 'This post already exist'
-            })
-        }
+    const sql = 'INSERT INTO posts  (title, content, image) VALUES (?, ?, ?)'
+
+    connection.query(sql, [newPost.title, newPost.content, newPost.image], (err, results) => {
+        if (err) return res.status(500).json({ message: 'error' });
+        res.json({ message: 'Post inserito con successo' })
     })
-    //create new slug
-    const newSlug = req.body.title.replaceAll(' ', '-').toLowerCase();
-    console.log(newSlug);
-
-    const newPost = {
-        title: req.body.title,
-        slug: newSlug,
-        content: req.body.content,
-        image: req.body.image,
-        tags: req.body.tags
-    }
-
-    data.push(newPost);
-
-    console.log(data);
-
-    res.status(201);
-    res.json(newPost);
-
 }
 
 function update(req, res) {
