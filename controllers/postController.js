@@ -141,9 +141,8 @@ function destroy(req, res) {
 
     const sql = 'DELETE FROM posts WHERE posts.title = ?'
 
-    connection.query(sql, [postSlug], (err, results) => {
+    connection.query(sql, [postSlug], (err) => {
         if (err) return res.status(500).json({ message: 'DB error' });
-
         res.sendStatus(204)
     })
 }
